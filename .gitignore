@@ -4,4 +4,5 @@
 *.class
 *Test.java
 **/test/
-application-dev.yml
+# 敏感配置文件
+   sky-server/src/main/resources/application-dev.yml
