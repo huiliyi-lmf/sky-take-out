@@ -19,7 +19,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 
 @Service
@@ -79,12 +78,53 @@ public class DishServiceImpl implements DishService {
             throw new DeletionNotAllowedException(MessageConstant.DISH_BE_RELATED_BY_SETMEAL);
         }
         //删除菜品表中的数据
-        for (Long id : ids) {
-            dishMapper.deleteById(id);
-        }
+//        for (Long id : ids) {
+//            dishMapper.deleteById(id);
+//        }
         //删除关联的口味表中的数据
-        for (Long id : ids) {
-            dishFlavorMapper.deleteByDishId(id);
-        }
+//        for (Long id : ids) {
+//            dishFlavorMapper.deleteByDishId(id);
+//        }
+        dishMapper.deleteByIds(ids);
+        dishFlavorMapper.deleteByDishIds(ids);
     }
+   /**
+     * 根据id查询菜品及其对应的口味信息
+     * @param id
+     * @return
+     */
+    @Override
+    public DishVO getByIdWithFlavor(Long id) {
+        //根据id查询菜品
+        Dish dish = dishMapper.getById(id);
+        //根据菜品id查询对应的口味数据
+        List<DishFlavor> flavors = dishFlavorMapper.getByDishId(id);
+        //封装成DishVO对象并返回
+        DishVO dishVO = new DishVO();
+        BeanUtils.copyProperties(dish,dishVO);
+        dishVO.setFlavors(flavors);
+        return dishVO;
+    }
+    /**
+     * 修改菜品，同时修改对应的口味数据
+     * @param dishDTO
+     */
+    @Override
+    public void updateWithFlavor(DishDTO dishDTO) {
+
+        //更新菜品表中的数据
+        Dish dish = new Dish();
+        BeanUtils.copyProperties(dishDTO,dish);
+        dishMapper.update(dish);
+        dishFlavorMapper.deleteByDishId(dish.getId());
+        //更新口味表中的数据
+        List<DishFlavor> flavors = dishDTO.getFlavors();
+        if(flavors!=null && flavors.size()>0){
+            for (DishFlavor flavor : flavors) {
+                flavor.setDishId(dishDTO.getId());}
+            dishFlavorMapper.insertBatch(flavors);
+        }
+
+    }
+
 }
