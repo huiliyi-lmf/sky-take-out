@@ -69,7 +69,8 @@ public class DishServiceImpl implements DishService {
         //判断当前菜品是否能够删除--1.是否存在起售中的菜品？2.是否关联了套餐？
         for (Long id : ids) {
             Dish dish = dishMapper.getById(id);
-            if(dish.getStatus()== StatusConstant.ENABLE){
+            // 添加空值检查，防止空指针异常
+            if(dish != null && dish.getStatus()== StatusConstant.ENABLE){
                 throw new DeletionNotAllowedException(MessageConstant.DISH_ON_SALE);
             }
         }
