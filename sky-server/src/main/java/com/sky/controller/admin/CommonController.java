@@ -32,8 +32,11 @@ public class CommonController {
 
         try {
             String OriFilename = file.getOriginalFilename();
+            //获取文件后缀
             String suffix = OriFilename.substring(OriFilename.lastIndexOf("."));
+            //使用UUID重新生成文件名，防止文件名重复造成文件覆盖
             String objectName = UUID.randomUUID().toString()+suffix;
+            //调用工具类进行上传到阿里云oss
             String filePath=aliOssUtil.upload(file.getBytes(),objectName);
             return Result.success(filePath);
         } catch (IOException e) {
